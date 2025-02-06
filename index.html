@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Random Key Generator</title>
+    <script>
+        const keyInfoMap = new Map();
+        const keyInfoJSONString = `[{"Brand":"Schlage","Keys":[{"blank":"SC1","cuts":5,"macs":7,"minacs":2,"minBitting":0,"maxBitting":9},{"blank":"SC4","cuts":6,"macs":7,"minacs":2,"minBitting":0,"maxBitting":9}]},{"Brand":"Kwikset","Keys":[{"blank":"KW1","cuts":5,"macs":4,"minacs":2,"minBitting":1,"maxBitting":7},{"blank":"KW10","cuts":6,"macs":4,"minacs":2,"minBitting":1,"maxBitting":7}]},{"Brand":"Weiser","Keys":[{"blank":"WR5","cuts":5,"macs":4,"minacs":2,"minBitting":1,"maxBitting":7}]},{"Brand":"Yale","Keys":[{"blank":"Y1","cuts":5,"macs":6,"minacs":2,"minBitting":0,"maxBitting":9},{"blank":"Y2","cuts":6,"macs":6,"minacs":2,"minBitting":0,"maxBitting":9}]},{"Brand":"Master Lock","Keys":[{"blank":"M1","cuts":4,"macs":7,"minacs":2,"minBitting":0,"maxBitting":9},{"blank":"M19","cuts":5,"macs":7,"minacs":2,"minBitting":0,"maxBitting":9}]},{"Brand":"Corbin Russwin","Keys":[{"blank":"CO91","cuts":6,"macs":7,"minacs":2,"minBitting":0,"maxBitting":9}]},{"Brand":"Medeco","Keys":[{"blank":"M3","cuts":6,"macs":6,"minacs":2,"minBitting":0,"maxBitting":9}]},{"Brand":"Sargent","Keys":[{"blank":"L1011","cuts":6,"macs":7,"minacs":2,"minBitting":0,"maxBitting":9}]},{"Brand":"Ilco","Keys":[{"blank":"1599","cuts":5,"macs":6,"minacs":2,"minBitting":0,"maxBitting":9}]},{"Brand":"Best","Keys":[{"blank":"A1114","cuts":7,"macs":7,"minacs":2,"minBitting":0,"maxBitting":9},{"blank":"A1145","cuts":6,"macs":7,"minacs":2,"minBitting":0,"maxBitting":9}]},{"Brand":"Arrow","Keys":[{"blank":"AR1","cuts":5,"macs":7,"minacs":2,"minBitting":0,"maxBitting":9}]},{"Brand":"Falcon","Keys":[{"blank":"F1","cuts":6,"macs":5,"minacs":2,"minBitting":0,"maxBitting":9}]}]`;
+        const parsedKeyInfo = JSON.parse(keyInfoJSONString);
+
+        function generateKeyCode(event)
+        {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+
+            var pinCount = parseInt(formData.get("cuts"));
+            var macs = parseInt(formData.get("macs"));
+            var minacs = parseInt(formData.get("minacs"));
+            var minCut = parseInt(formData.get("minBitting"));
+            var maxCut = parseInt(formData.get("maxBitting"));
+
+            let pinCode = [];
+
+            for(let i = 0; i <= pinCount; i++)
+            {
+                let currentPin = getRndInteger(minCut, maxCut);
+
+                if(i > 0) 
+                {
+                    let whileCatch = 0;
+                    let abs = Math.abs(pinCode[i-1] - currentPin);
+                    let safteyNet = 0
+
+                    for(safteyNet = 0; safteyNet <= 1000; safteyNet++)
+                    {
+                        if(abs === 0 || abs > macs || abs < minacs)
+                        {
+                            currentPin = getRndInteger(minCut, maxCut);
+                            abs = Math.abs(pinCode[i-1] - currentPin);
+                        }
+                    }
+
+                    if(safteyNet == 1000)
+                    {
+                        throw "Fuck man we fucked";
+                    }
+                    
+                }
+
+                pinCode[i] = currentPin;
+
+            }
+
+            var codeOut = pinCode.join(', ')
+            document.getElementById('result').innerHTML = codeOut;
+        }
+
+        function getRndInteger(min, max) {
+            return Math.floor(Math.random() * (max - min + 1) ) + min;
+        }
+
+        function setMinVal(triggerElementName, targetElementName){
+            
+            const targetElement = document.getElementById(targetElementName);
+            const triggerElement = document.getElementById(triggerElementName);
+
+            targetElement.min = parseInt(triggerElement.value) + 1;
+            triggerElement.max = parseInt(targetElement.value) - 1;
+        }
+
+        function setMaxVal(triggerElement, targetElement){
+            
+            console.log(targetElement);
+        }
+
+        function setKeyResultBlank()
+        {
+            var resultElement = document.getElementById('result')
+            var cutCount = parseInt(document.getElementById('cuts').value)
+
+            let blankPinCode = [];
+
+            for(let i = 0; i < cutCount; i++)
+            {
+                blankPinCode[i] = 0;
+            }
+
+            resultElement.innerHTML = blankPinCode.join(', ');
+        }
+
+    </script>
+
+    <style>
+        /* Dark mode styling */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        #content {
+            text-align: center;
+            background: #1e1e1e;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 350px;
+        }
+
+        a {
+            color: #bb86fc;
+            font-weight: bold;
+        }
+
+        hr {
+            border: 1px solid #333;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            background: #333;
+            border: 1px solid #555;
+            color: #e0e0e0;
+            border-radius: 5px;
+        }
+
+        input[type="submit"], input[type="reset"] {
+            margin-top: 15px;
+            background-color: #6200ea;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        input[type="submit"]:hover, input[type="reset"]:hover {
+            background-color: #3700b3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="content">
+        Key: 
+        <a id="result"></a>
+        <hr/>
+        <div id="form">
+            <form id="specForm" onsubmit="event.preventDefault(); generateKeyCode(event)" onreset="setKeyResultBlank()">
+                <label for="presetSelect">Preset</label>
+                <select id="presetSelect"><option disabled selected value> -- Select Key -- </option></select>
+                <br/>
+                <label for="cuts">Cut/Pin Count</label>
+                <input type="number" id="cuts" name="cuts" 
+                    value="5" min="1" required><br>
+
+                <label for="macs">Max Adjacent Cut Specification</label>
+                <input type="number" id="macs" name="macs" 
+                    value="7" min="1" required><br>
+
+                <label for="minacs">Minimum Adjacent Cut Specification</label>
+                <input type="number" id="minacs" name="minacs" 
+                    value="2" min="0" required><br>
+                    
+                <label for="minBitting">Minimum Bitting</label>
+                <input type="number" id="minBitting" name="minBitting" 
+                    value="0" min="0" required><br>
+
+                <label for="maxBitting">Maximum Bitting</label>
+                <input type="number" id="maxBitting" name="maxBitting" 
+                    value="9" min="1" required><br>
+
+                <input type="submit" value="Generate">
+                <input type="reset" value="Reset">
+            </form>
+        </div>    
+    </div>
+
+    <script>
+        document.getElementById('minBitting').oninput = function(){setMinVal('minBitting', 'maxBitting');};
+        document.getElementById('minacs').oninput = function(){setMinVal('minacs', 'macs');};
+
+        document.getElementById('presetSelect').onchange = function(){
+            let presetSelect = document.getElementById('presetSelect');
+            let selectedOption = presetSelect.options[presetSelect.selectedIndex];
+            let optGroup = selectedOption.parentNode;
+
+            let brand = optGroup.label;
+            let blank = selectedOption.value;
+
+            let keyMap = keyInfoMap.get(brand).get(blank)
+            let keysIterator = keyMap.keys();
+
+            for(let keyIterator of keysIterator)
+            {
+                document.getElementById(keyIterator).value = keyMap.get(keyIterator);
+            }
+
+            setMinVal('minBitting', 'maxBitting');
+            setMinVal('minacs', 'macs');
+            
+            setKeyResultBlank();
+        };
+    </script>
+
+    <script>
+        let brandCount = parsedKeyInfo.length;
+
+        let select = document.getElementById('presetSelect')
+
+        for(let i = 0; i < brandCount; i++)
+        {
+            let currentBrand = parsedKeyInfo[i]
+            let group = document.createElement('OPTGROUP');
+            group.label = currentBrand.Brand;
+
+            let keyCount = parsedKeyInfo[i].Keys.length;
+            
+            let keyMap = new Map();
+
+            for(let j = 0; j < keyCount; j++)
+            {
+                let option = document.createElement('OPTION');
+                option.textContent = currentBrand.Keys[j].blank
+                group.appendChild(option);
+
+                let keyValue = new Map();
+
+                keyValue.set('cuts', currentBrand.Keys[j].cuts);
+                keyValue.set('macs', currentBrand.Keys[j].macs);
+                keyValue.set('minacs', currentBrand.Keys[j].minacs);
+                keyValue.set('minBitting', currentBrand.Keys[j].minBitting);
+                keyValue.set('maxBitting', currentBrand.Keys[j].maxBitting);
+
+                keyMap.set(currentBrand.Keys[j].blank, keyValue);
+            }
+
+            keyInfoMap.set(currentBrand.Brand, keyMap);
+
+            select.appendChild(group);
+        }
+
+        setKeyResultBlank();
+
+    </script>
+</body>
